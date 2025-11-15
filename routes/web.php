@@ -5,12 +5,15 @@ use App\Livewire\Admin\UserManagement;
 use App\Livewire\Event\CreateEvent;
 use App\Livewire\Event\EditEvent;
 use App\Livewire\Event\ListEvents;
+use App\Livewire\Event\ShowDetail;
 use App\Livewire\Homepage;
 
 require __DIR__.'/auth.php';
 
 
 Route::get('/', Homepage::class)->name('home');
+
+Route::get('event/{event}', ShowDetail::class)->name('event.show');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
