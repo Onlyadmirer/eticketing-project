@@ -3,6 +3,7 @@
 namespace App\Livewire\Event;
 
 use App\Models\Event;
+use App\Models\Ticket;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
@@ -124,10 +125,10 @@ class EditEvent extends Component
 
         // Buat tiket baru yang terhubung dengan event ini
         $this->event->tickets()->create([
-            'name' => $validated["ticket_name"],
-            'description' => $validated["ticket_description"],
-            'price' => $validated["ticket_price"],
-            'quantity' => $validated["ticket_quantity"],
+            'name' => $validated['ticket_name'],
+            'description' => $validated['ticket_description'],
+            'price' => $validated['ticket_price'],
+            'quantity' => $validated['ticket_quantity'],
         ]);
 
         // Beri notifikasi
@@ -137,9 +138,28 @@ class EditEvent extends Component
         $this->reset('ticket_name', 'ticket_description', 'ticket_price', 'ticket_quantity');
     }
 
+    public function deleteTicket(Ticket $ticket)
+    {
+        // 1. Otorisasi (sederhana): Pastikan tiket ini milik event yang sedang diedit
+        // Ini mencegah bug jika ada manipulasi dari sisi klien
+        if ($ticket->event_id !== $this->event->id) {
+            abort(403, 'Aksi tidak diizinkan.');
+        }
+
+        // 2. Hapus tiket
+        $ticket->delete();
+
+        // 3. Beri notifikasi
+        // Kita gunakan key yang sama ('success_ticket') agar tampil di tempat yang sama
+        session()->flash('success_ticket', 'Tiket berhasil dihapus.');
+
+        // 4. Muat ulang data tiket (wajib!)
+        // Ini akan memperbarui daftar tiket di view secara otomatis
+        $this->event->load('tickets');
+    }
+
     public function render()
     {
-
         $this->event->load('tickets');
         return view('livewire.event.edit-event');
     }
