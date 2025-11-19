@@ -21,6 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',            
+        'organizer_status',
     ];
 
     /**
@@ -44,5 +46,16 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+    // Relasi: User (Organizer) bisa punya banyak Event
+    public function events()
+    {
+        return $this->hasMany(Event::class);
+    }
+
+    // Relasi: User bisa punya banyak Booking
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
     }
 }
