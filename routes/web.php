@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\ManageUserController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -17,31 +19,42 @@ Route::get('/dashboard', function () {
     } else {
         return redirect()->route('user.dashboard');
     }
-})->middleware(['auth', 'verified'])->name('dashboard');
+})
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 // --- GROUP ADMIN ---
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
         Route::get('/dashboard', function () {
             return view('admin.dashboard');
         })->name('dashboard');
 
         // Manage Users Route
-    Route::get('/users', [App\Http\Controllers\Admin\ManageUserController::class, 'index'])->name('users.index');
-    Route::patch('/users/{id}/verify', [App\Http\Controllers\Admin\ManageUserController::class, 'verifyOrganizer'])->name('users.verify');
-    Route::delete('/users/{id}', [App\Http\Controllers\Admin\ManageUserController::class, 'destroy'])->name('users.destroy');
+        Route::get('/users', [ManageUserController::class, 'index'])->name('users.index');
+        Route::patch('/users/{id}/verify', [ManageUserController::class, 'verifyOrganizer'])->name('users.verify');
+        Route::delete('/users/{id}', [ManageUserController::class, 'destroy'])->name('users.destroy');
+        Route::resource('events', EventController::class);
     });
 
 // --- GROUP ORGANIZER ---
-Route::middleware(['auth', 'role:organizer'])->prefix('organizer')->name('organizer.')->group(function () {
+Route::middleware(['auth', 'role:organizer'])
+    ->prefix('organizer')
+    ->name('organizer.')
+    ->group(function () {
         Route::get('/dashboard', function () {
             return view('organizer.dashboard');
         })->name('dashboard');
 
-        // Nanti kita tambahkan route event management milik organizer di sini
+       Route::resource('events', EventController::class);
     });
 
 // --- GROUP USER (REGISTERED) ---
-Route::middleware(['auth', 'role:user'])->name('user.')->group(function () {
+Route::middleware(['auth', 'role:user'])
+    ->name('user.')
+    ->group(function () {
         Route::get('/user-dashboard', function () {
             return view('dashboard'); // View default breeze, nanti kita ubah isinya
         })->name('dashboard');
