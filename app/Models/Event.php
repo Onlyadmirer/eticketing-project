@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class Event extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'title',
+        'description',
+        'start_time',
+        'location',
+        'image',
+    ];
+
+    // Relasi: Event dimiliki oleh satu User (Organizer)
+    public function organizer()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // Relasi: Event punya banyak jenis Tiket
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+    }
+}

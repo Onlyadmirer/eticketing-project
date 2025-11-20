@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -17,6 +16,14 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+
+            // Tambahan untuk Role Management
+            // Role: 'admin', 'organizer', 'user'
+            $table->enum('role', ['admin', 'organizer', 'user'])->default('user');
+
+            // Status khusus Organizer: 'approved', 'rejected', 'pending', null (untuk user biasa)
+            $table->enum('organizer_status', ['approved', 'rejected', 'pending'])->nullable();
+
             $table->rememberToken();
             $table->timestamps();
         });
