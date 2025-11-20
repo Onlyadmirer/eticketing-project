@@ -23,7 +23,7 @@
 
       <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
         <div class="p-6 text-gray-900">
-          <table class="min-w-full border border-collapse border-gray-200 table-auto">
+          <table class="min-w-full text-center border border-collapse border-gray-200 table-auto">
             <thead>
               <tr class="bg-gray-100">
                 <th class="px-4 py-2 border">Poster</th>
@@ -36,7 +36,7 @@
             <tbody>
               @foreach ($events as $event)
                 <tr>
-                  <td class="px-4 py-2 border">
+                  <td class="flex justify-center px-4 py-2 border ">
                     @if ($event->image)
                       <img src="{{ asset('storage/' . $event->image) }}" class="object-cover w-16 h-16 rounded">
                     @else
@@ -47,14 +47,23 @@
                   <td class="px-4 py-2 border">{{ \Carbon\Carbon::parse($event->start_time)->format('d M Y, H:i') }}
                   </td>
                   <td class="px-4 py-2 border">{{ $event->location }}</td>
-                  <td class="px-4 py-2 border">
-                    <form
-                      action="{{ Auth::user()->role === 'admin' ? route('admin.events.destroy', $event->id) : route('organizer.events.destroy', $event->id) }}"
-                      method="POST" onsubmit="return confirm('Hapus event ini?')">
-                      @csrf
-                      @method('DELETE')
-                      <button type="submit" class="text-red-500 hover:underline">Hapus</button>
-                    </form>
+                  <td>
+                    <div class="flex justify-center gap-2 px-4 py-2">
+                      <a href="{{ Auth::user()->role === 'admin' ? route('admin.events.edit', $event->id) : route('organizer.events.edit', $event->id) }}"
+                        class="font-bold text-yellow-500 hover:underline">
+                        Edit
+                      </a>
+
+                      <span class="text-gray-300">|</span>
+
+                      <form
+                        action="{{ Auth::user()->role === 'admin' ? route('admin.events.destroy', $event->id) : route('organizer.events.destroy', $event->id) }}"
+                        method="POST" onsubmit="return confirm('Hapus event ini?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-red-500 hover:underline">Hapus</button>
+                      </form>
+                    </div>
                   </td>
                 </tr>
               @endforeach
