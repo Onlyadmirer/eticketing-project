@@ -47,22 +47,29 @@
                   <td class="px-4 py-2 border">{{ \Carbon\Carbon::parse($event->start_time)->format('d M Y, H:i') }}
                   </td>
                   <td class="px-4 py-2 border">{{ $event->location }}</td>
-                  <td>
-                    <div class="flex justify-center gap-2 px-4 py-2">
-                      <a href="{{ Auth::user()->role === 'admin' ? route('admin.events.edit', $event->id) : route('organizer.events.edit', $event->id) }}"
-                        class="font-bold text-yellow-500 hover:underline">
-                        Edit
+                  <td class="px-4 py-2 border">
+                    <div class="flex flex-col gap-1 text-center">
+                      <a href="{{ Auth::user()->role === 'admin' ? route('admin.events.tickets.index', $event->id) : route('organizer.events.tickets.index', $event->id) }}"
+                        class="px-2 py-1 mb-2 text-xs font-bold text-indigo-700 bg-indigo-100 rounded hover:bg-indigo-200">
+                        🎫 Kelola Tiket
                       </a>
 
-                      <span class="text-gray-300">|</span>
+                      <div class="flex justify-center gap-2 text-sm">
+                        <a href="{{ Auth::user()->role === 'admin' ? route('admin.events.edit', $event->id) : route('organizer.events.edit', $event->id) }}"
+                          class="font-bold text-yellow-500 hover:underline">
+                          Edit
+                        </a>
 
-                      <form
-                        action="{{ Auth::user()->role === 'admin' ? route('admin.events.destroy', $event->id) : route('organizer.events.destroy', $event->id) }}"
-                        method="POST" onsubmit="return confirm('Hapus event ini?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-500 hover:underline">Hapus</button>
-                      </form>
+                        <span class="text-gray-300">|</span>
+
+                        <form
+                          action="{{ Auth::user()->role === 'admin' ? route('admin.events.destroy', $event->id) : route('organizer.events.destroy', $event->id) }}"
+                          method="POST" onsubmit="return confirm('Hapus event ini?')">
+                          @csrf
+                          @method('DELETE')
+                          <button type="submit" class="text-red-500 hover:underline">Hapus</button>
+                        </form>
+                      </div>
                     </div>
                   </td>
                 </tr>
