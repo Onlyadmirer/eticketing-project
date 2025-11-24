@@ -14,6 +14,8 @@ class Booking extends Model
         'ticket_id',
         'booking_code',
         'status',
+        'quantity', 
+        'total_price',
     ];
 
     // Relasi: Booking milik satu User
