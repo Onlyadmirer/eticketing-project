@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\ManageUserController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +20,7 @@ Route::get('/dashboard', function () {
     } elseif ($user->role === 'organizer') {
         return redirect()->route('organizer.dashboard');
     } else {
-        return redirect()->route('user.dashboard');
+        return redirect()->route('user.bookings.index');
     }
 })
     ->middleware(['auth', 'verified'])
@@ -43,6 +45,10 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/events/{event}/tickets/create', [TicketController::class, 'create'])->name('events.tickets.create');
         Route::post('/events/{event}/tickets', [TicketController::class, 'store'])->name('events.tickets.store');
         Route::delete('/tickets/{ticket}', [TicketController::class, 'destroy'])->name('tickets.destroy');
+
+        // Route Report
+        Route::get('/events/{event}/bookings', [ReportController::class, 'index'])->name('events.bookings');
+
     });
 
 // --- GROUP ORGANIZER ---
@@ -60,15 +66,20 @@ Route::middleware(['auth', 'role:organizer'])
         Route::get('/events/{event}/tickets/create', [TicketController::class, 'create'])->name('events.tickets.create');
         Route::post('/events/{event}/tickets', [TicketController::class, 'store'])->name('events.tickets.store');
         Route::delete('/tickets/{ticket}', [TicketController::class, 'destroy'])->name('tickets.destroy');
+
+        // Route Report
+        Route::get('/events/{event}/bookings', [App\Http\Controllers\ReportController::class, 'index'])->name('events.bookings');
+
     });
 
 // --- GROUP USER (REGISTERED) ---
 Route::middleware(['auth', 'role:user'])
     ->name('user.')
     ->group(function () {
-        Route::get('/user-dashboard', function () {
-            return view('dashboard'); // View default breeze, nanti kita ubah isinya
-        })->name('dashboard');
+
+        // Route Booking
+        Route::get('/my-bookings', [BookingController::class, 'index'])->name('bookings.index');
+        Route::post('/booking', [BookingController::class, 'store'])->name('bookings.store');
     });
 
 Route::middleware('auth')->group(function () {

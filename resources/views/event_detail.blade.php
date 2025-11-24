@@ -79,16 +79,19 @@
               @if ($ticket->quota > 0)
                 @auth
                   @if (Auth::user()->role === 'user')
-                    <form action="#" method="POST">
+                    <form action="{{ route('user.bookings.store') }}" method="POST"
+                      onsubmit="return confirm('Apakah Anda yakin ingin memesan tiket ini?');">
                       @csrf
-                      <button type="button" onclick="alert('Fitur checkout akan dibuat di tahap selanjutnya!')"
-                        class="px-4 py-2 text-white transition bg-blue-600 rounded hover:bg-blue-700">
+                      <input type="hidden" name="ticket_id" value="{{ $ticket->id }}">
+
+                      <button type="submit"
+                        class="px-4 py-2 font-bold text-white transition bg-blue-600 rounded shadow-md hover:bg-blue-700">
                         Pesan Sekarang
                       </button>
                     </form>
                   @else
                     <button disabled class="px-4 py-2 text-gray-500 bg-gray-300 rounded cursor-not-allowed">
-                      Admin/Organizer Tidak Bisa Beli
+                      Role Anda Tidak Bisa Pesan
                     </button>
                   @endif
                 @else

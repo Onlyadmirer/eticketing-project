@@ -48,17 +48,20 @@
                   </td>
                   <td class="px-4 py-2 border">{{ $event->location }}</td>
                   <td class="px-4 py-2 border">
-                    <div class="flex flex-col gap-1 text-center">
+                    <div class="flex flex-col gap-2 text-center">
                       <a href="{{ Auth::user()->role === 'admin' ? route('admin.events.tickets.index', $event->id) : route('organizer.events.tickets.index', $event->id) }}"
-                        class="px-2 py-1 mb-2 text-xs font-bold text-indigo-700 bg-indigo-100 rounded hover:bg-indigo-200">
+                        class="px-2 py-1 text-xs font-bold text-indigo-700 bg-indigo-100 rounded hover:bg-indigo-200">
                         🎫 Kelola Tiket
                       </a>
 
-                      <div class="flex justify-center gap-2 text-sm">
+                      <a href="{{ Auth::user()->role === 'admin' ? route('admin.events.bookings', $event->id) : route('organizer.events.bookings', $event->id) }}"
+                        class="px-2 py-1 text-xs font-bold text-green-700 bg-green-100 rounded hover:bg-green-200">
+                        👥 Lihat Peserta
+                      </a>
+
+                      <div class="flex justify-center gap-2 mt-1 text-sm">
                         <a href="{{ Auth::user()->role === 'admin' ? route('admin.events.edit', $event->id) : route('organizer.events.edit', $event->id) }}"
-                          class="font-bold text-yellow-500 hover:underline">
-                          Edit
-                        </a>
+                          class="font-bold text-yellow-500 hover:underline">Edit</a>
 
                         <span class="text-gray-300">|</span>
 
