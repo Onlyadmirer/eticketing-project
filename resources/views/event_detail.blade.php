@@ -20,13 +20,25 @@
     <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <div class="flex items-center gap-4">
-          <a href="{{ route('welcome') }}"
+          @php
+            $backRoute = route('welcome');
+            $backText = 'Kembali ke Home';
+            if (request('from') === 'favorites') {
+                $backRoute = route('user.favorites.index');
+                $backText = 'Kembali ke Favorit';
+            } elseif (request('from') === 'events') {
+                $backRoute = route('events.browse');
+                $backText = 'Kembali ke Katalog';
+            }
+          @endphp
+
+          <a href="{{ $backRoute }}"
             class="flex items-center gap-2 text-sm font-bold text-gray-400 transition hover:text-white">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
               stroke="currentColor" class="w-5 h-5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
             </svg>
-            Kembali
+            {{ $backText }}
           </a>
           <div class="w-px h-6 mx-2 bg-gray-700"></div>
           <span class="text-xl font-bold tracking-wide text-white">TicketGo</span>
@@ -63,6 +75,7 @@
             <div class="flex items-center justify-center h-full font-bold text-gray-600">No Image Available</div>
           @endif
         </div>
+
         <div class="flex flex-col justify-center p-8 md:w-1/2 md:p-12">
           <div class="flex items-center gap-2 mb-4">
             <span
@@ -71,7 +84,35 @@
             </span>
             <span class="text-sm font-semibold text-gray-400">{{ $event->organizer->name }}</span>
           </div>
-          <h1 class="mb-4 text-3xl font-black leading-tight text-white md:text-4xl">{{ $event->title }}</h1>
+
+          <div class="flex items-start justify-between mb-4">
+            <h1 class="text-3xl font-black leading-tight text-white md:text-4xl">{{ $event->title }}</h1>
+
+            @auth
+              @if (Auth::user()->role === 'user')
+                <form action="{{ route('user.favorites.toggle', $event->id) }}" method="POST">
+                  @csrf
+                  <button type="submit"
+                    class="p-2 transition transform bg-gray-800 border border-gray-600 rounded-full hover:bg-gray-700 active:scale-90 group">
+                    @if ($event->isFavoritedBy(Auth::user()))
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                        class="w-6 h-6 text-red-500 group-hover:text-red-400">
+                        <path
+                          d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                      </svg>
+                    @else
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="w-6 h-6 text-gray-400 group-hover:text-red-500">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                      </svg>
+                    @endif
+                  </button>
+                </form>
+              @endif
+            @endauth
+          </div>
+
           <div class="mb-8 space-y-3 text-gray-300">
             <div class="flex items-start gap-3">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-lime-400 shrink-0" fill="none"
@@ -95,6 +136,7 @@
               <span class="font-medium">{{ $event->location }}</span>
             </div>
           </div>
+
           <div class="prose-sm prose text-gray-400 prose-invert">
             <h3 class="mb-2 text-lg font-bold text-white">Deskripsi Acara</h3>
             <p>{{ $event->description }}</p>
@@ -106,6 +148,7 @@
     <div class="mt-12">
       <h2 class="pl-4 mb-6 text-2xl font-bold text-white border-l-4 border-lime-400">Pilih Tiket</h2>
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+
         @forelse($event->tickets as $ticket)
           <div
             class="bg-[#27272a] border border-gray-800 rounded-2xl p-6 shadow-lg hover:border-lime-500/50 transition-all duration-300 relative group flex flex-col h-full">
@@ -126,23 +169,26 @@
 
             <div class="h-px my-4 bg-gray-700 border-t border-gray-600 border-dashed"></div>
             <p class="text-gray-400 text-sm mb-6 min-h-[40px] flex-1">
-              {{ $ticket->description ?? 'Tiket masuk reguler untuk acara ini.' }}</p>
+              {{ $ticket->description ?? 'Tiket masuk reguler.' }}</p>
 
             <div class="relative z-10 mt-auto">
-              @if ($ticket->quota > 0)
+              @if (now()->greaterThan(\Carbon\Carbon::parse($event->start_time)))
+                <button disabled
+                  class="w-full py-3 font-bold text-gray-500 border border-gray-600 cursor-not-allowed bg-gray-800/50 rounded-xl">
+                  EVENT SUDAH SELESAI
+                </button>
+              @elseif($ticket->quota > 0)
                 @auth
                   @if (Auth::user()->role === 'user')
-                    <div class="flex items-end gap-3">
+                    <div class="flex gap-3">
                       <div class="w-1/3">
-                        <label for="qty_{{ $ticket->id }}" class="pl-1 text-sm text-gray-300">Jumlah :</label>
                         <input type="number" id="qty_{{ $ticket->id }}" value="1" min="1"
                           max="{{ $ticket->quota }}"
                           class="w-full py-3 font-bold text-center text-white border border-gray-600 bg-black/30 rounded-xl focus:border-lime-400 focus:ring-lime-400">
                       </div>
-
                       <button type="button"
                         onclick="openBookingModal('{{ $ticket->name }}', {{ $ticket->price }}, '{{ $ticket->id }}')"
-                        class="w-2/3 py-3 font-bold text-black transition transform shadow-lg h-1/2 bg-lime-400 hover:bg-lime-500 rounded-xl active:scale-95 shadow-lime-400/20">
+                        class="w-2/3 py-3 font-bold text-black transition transform shadow-lg bg-lime-400 hover:bg-lime-500 rounded-xl active:scale-95 shadow-lime-400/20">
                         Pesan
                       </button>
                     </div>
@@ -194,30 +240,17 @@
             <div class="w-full mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
               <h3 class="text-lg font-bold leading-6 text-white" id="modal-title">Konfirmasi Pemesanan</h3>
               <div class="p-4 mt-4 space-y-2 border border-gray-700 bg-black/20 rounded-xl">
-
-                <div class="flex justify-between text-sm text-gray-400">
-                  <span>Jenis Tiket:</span>
-                  <span class="font-bold text-white" id="modalTicketName">-</span>
-                </div>
-                <div class="flex justify-between text-sm text-gray-400">
-                  <span>Harga Satuan:</span>
-                  <span class="text-white" id="modalUnitPrice">-</span>
-                </div>
-                <div class="flex justify-between text-sm text-gray-400">
-                  <span>Jumlah:</span>
-                  <span class="font-bold text-lime-400" id="modalQtyDisplay">0</span>
-                </div>
-
+                <div class="flex justify-between text-sm text-gray-400"><span>Jenis Tiket:</span> <span
+                    class="font-bold text-white" id="modalTicketName">-</span></div>
+                <div class="flex justify-between text-sm text-gray-400"><span>Harga Satuan:</span> <span
+                    class="text-white" id="modalUnitPrice">-</span></div>
+                <div class="flex justify-between text-sm text-gray-400"><span>Jumlah:</span> <span
+                    class="font-bold text-lime-400" id="modalQtyDisplay">0</span></div>
                 <div class="h-px my-2 bg-gray-700"></div>
-
-                <div class="flex items-center justify-between">
-                  <span class="text-sm text-gray-300">Total Bayar:</span>
-                  <span class="text-xl font-black text-lime-400" id="modalTotalPrice">Rp 0</span>
-                </div>
+                <div class="flex items-center justify-between"><span class="text-sm text-gray-300">Total Bayar:</span>
+                  <span class="text-xl font-black text-lime-400" id="modalTotalPrice">Rp 0</span></div>
               </div>
-              <p class="mt-3 text-xs text-gray-500">
-                Pastikan pesanan Anda benar. Tiket tidak dapat dikembalikan.
-              </p>
+              <p class="mt-3 text-xs text-gray-500">Pastikan pesanan Anda benar. Tiket tidak dapat dikembalikan.</p>
             </div>
           </div>
         </div>
@@ -225,15 +258,13 @@
           <form id="bookingForm" action="{{ route('user.bookings.store') }}" method="POST">
             @csrf
             <input type="hidden" name="ticket_id" id="modalTicketId">
-            <input type="hidden" name="quantity" id="modalQtyInput"> <button type="submit"
-              class="inline-flex justify-center w-full px-4 py-2 text-base font-bold text-black transition border border-transparent rounded-lg shadow-sm bg-lime-400 hover:bg-lime-500 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
-              Bayar Sekarang
-            </button>
+            <input type="hidden" name="quantity" id="modalQtyInput">
+            <button type="submit"
+              class="inline-flex justify-center w-full px-4 py-2 text-base font-bold text-black transition border border-transparent rounded-lg shadow-sm bg-lime-400 hover:bg-lime-500 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">Bayar
+              Sekarang</button>
           </form>
           <button type="button" onclick="closeBookingModal()"
-            class="inline-flex justify-center w-full px-4 py-2 mt-3 text-base font-medium text-gray-300 transition bg-gray-800 border border-gray-600 rounded-lg shadow-sm hover:text-white hover:bg-gray-700 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-            Batal
-          </button>
+            class="inline-flex justify-center w-full px-4 py-2 mt-3 text-base font-medium text-gray-300 transition bg-gray-800 border border-gray-600 rounded-lg shadow-sm hover:text-white hover:bg-gray-700 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Batal</button>
         </div>
       </div>
     </div>
@@ -243,29 +274,22 @@
     function openBookingModal(name, price, id) {
       let qtyInput = document.getElementById('qty_' + id);
       let qty = parseInt(qtyInput.value);
-
       if (qty < 1 || isNaN(qty)) {
         alert("Jumlah tiket minimal 1");
         return;
       }
-
       let total = price * qty;
-
-      // 3. Format Rupiah (Intl.NumberFormat)
       let formatter = new Intl.NumberFormat('id-ID', {
         style: 'currency',
         currency: 'IDR',
         minimumFractionDigits: 0
       });
-
       document.getElementById('modalTicketName').innerText = name;
       document.getElementById('modalUnitPrice').innerText = formatter.format(price);
       document.getElementById('modalQtyDisplay').innerText = qty + "x";
       document.getElementById('modalTotalPrice').innerText = formatter.format(total);
-
       document.getElementById('modalTicketId').value = id;
       document.getElementById('modalQtyInput').value = qty;
-
       document.getElementById('bookingModal').classList.remove('hidden');
     }
 

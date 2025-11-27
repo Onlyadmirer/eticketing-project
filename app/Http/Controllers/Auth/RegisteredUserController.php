@@ -31,13 +31,24 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'role' => ['required', 'string', 'in:user,organizer'], // Validasi Role
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
+
+        // Tentukan Status Organizer
+        // Jika dia mendaftar sebagai Organizer -> Status = 'pending'
+        // Jika user biasa -> Status = null
+        $organizerStatus = null;
+        if ($request->role === 'organizer') {
+            $organizerStatus = 'pending';
+        }
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'role' => $request->role, // Simpan Role
+            'organizer_status' => $organizerStatus, // Simpan Status
             'password' => Hash::make($request->password),
         ]);
 
@@ -45,6 +56,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
+        // Redirect cerdas sesuai Role
         return redirect(route('dashboard', absolute: false));
     }
 }

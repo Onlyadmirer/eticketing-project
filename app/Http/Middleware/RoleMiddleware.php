@@ -15,7 +15,6 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, $role): Response
     {
-        // Cek apakah user punya role yang sesuai dengan yang diminta
         if ($request->user()->role !== $role) {
             abort(403, 'Akses Ditolak! Anda tidak memiliki izin.');
         }

@@ -83,6 +83,65 @@
 
       </div>
 
+      <div class="mb-8 bg-[#27272a] border border-gray-800 rounded-2xl overflow-hidden shadow-lg">
+        <div class="flex items-center justify-between p-6 border-b border-gray-800">
+          <h3 class="flex items-center gap-2 text-lg font-bold text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-lime-400" viewBox="0 0 20 20"
+              fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                clip-rule="evenodd" />
+            </svg>
+            Penjualan Terakhir
+          </h3>
+          <a href="{{ route('organizer.events.index') }}" class="text-xs text-lime-400 hover:underline">Lihat Semua
+            Event &rarr;</a>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left text-gray-400">
+            <thead class="text-xs font-bold text-gray-300 uppercase bg-black/20">
+              <tr>
+                <th class="px-6 py-4">Waktu</th>
+                <th class="px-6 py-4">Pembeli</th>
+                <th class="px-6 py-4">Tiket</th>
+                <th class="px-6 py-4 text-center">Qty</th>
+                <th class="px-6 py-4 text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-800">
+              @forelse($recentBookings as $booking)
+                <tr class="transition hover:bg-white/5">
+                  <td class="px-6 py-4 text-xs">
+                    <div class="font-bold text-white">{{ $booking->created_at->diffForHumans() }}</div>
+                    <div class="text-gray-500">{{ $booking->created_at->format('d M, H:i') }}</div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="font-bold text-white">{{ $booking->user->name }}</div>
+                    <div class="text-xs text-gray-500">{{ $booking->user->email }}</div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="font-bold text-lime-400">{{ $booking->ticket->event->title }}</div>
+                    <div class="text-xs text-gray-400">{{ $booking->ticket->name }}</div>
+                  </td>
+                  <td class="px-6 py-4 text-center">
+                    <span class="px-2 py-1 text-xs text-white bg-gray-700 rounded">x{{ $booking->quantity }}</span>
+                  </td>
+                  <td class="px-6 py-4 font-bold text-right text-white">
+                    Rp {{ number_format($booking->total_price, 0, ',', '.') }}
+                  </td>
+                </tr>
+              @empty
+                <tr class="text-center">
+                  <td colspan="5" class="py-8">Belum ada penjualan.</td>
+                </tr>
+              @endforelse
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
       <div class="grid grid-cols-1 gap-4">
         <a href="{{ route('organizer.events.index') }}"
           class="block p-6 bg-[#27272a] border border-gray-800 rounded-xl hover:bg-gray-800 transition group">

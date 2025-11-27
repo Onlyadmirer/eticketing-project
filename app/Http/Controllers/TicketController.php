@@ -12,12 +12,10 @@ class TicketController extends Controller
     // MENAMPILKAN DAFTAR TIKET BERDASARKAN EVENT
     public function index(Event $event)
     {
-        // Cek otoritas: Apakah user yang login adalah pemilik event ini (atau admin)?
         if (Auth::user()->role !== 'admin' && $event->user_id !== Auth::id()) {
             abort(403, 'Anda tidak berhak mengelola tiket event ini.');
         }
 
-        // Ambil tiket yang berelasi dengan event ini
         $tickets = $event->tickets;
 
         return view('tickets.index', compact('event', 'tickets'));
@@ -39,7 +37,6 @@ class TicketController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        // Simpan tiket via relasi event
         $event->tickets()->create([
             'name' => $request->name,
             'price' => $request->price,
@@ -47,7 +44,6 @@ class TicketController extends Controller
             'description' => $request->description,
         ]);
 
-        // Redirect kembali ke halaman daftar tiket event tersebut
         $route = Auth::user()->role === 'admin' ? 'admin.events.tickets.index' : 'organizer.events.tickets.index';
         
         return redirect()->route($route, $event->id)->with('success', 'Tiket berhasil ditambahkan!');
@@ -56,7 +52,6 @@ class TicketController extends Controller
     // HAPUS TIKET
     public function destroy(Ticket $ticket)
     {
-        // Kita perlu tahu event ID nya dulu sebelum tiket dihapus untuk redirect
         $eventId = $ticket->event_id; 
         
         $ticket->delete();

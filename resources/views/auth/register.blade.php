@@ -26,12 +26,23 @@
       <x-input-error :messages="$errors->get('password')" class="mt-2" />
     </div>
 
+
     <div class="mt-4">
       <label for="password_confirmation" class="block text-sm font-medium text-gray-300">Confirm Password</label>
       <x-text-input id="password_confirmation"
         class="block w-full mt-1 text-white bg-gray-900 border-gray-700 focus:border-lime-400 focus:ring-lime-400"
         type="password" name="password_confirmation" required autocomplete="new-password" />
       <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+    </div>
+    <div class="mt-4">
+      <label for="role" class="block text-sm font-medium text-gray-300">Daftar Sebagai</label>
+
+      <select id="role" name="role"
+        class="block w-full mt-1 text-white bg-gray-900 border-gray-700 rounded-md shadow-sm focus:border-lime-400 focus:ring-lime-400"
+        required>
+        <option value="user">Pengunjung (Cari Tiket)</option>
+        <option value="organizer">Event Organizer (Buat Event)</option>
+      </select>
     </div>
 
     <div class="flex items-center justify-end mt-4">

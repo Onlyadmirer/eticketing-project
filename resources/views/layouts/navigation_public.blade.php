@@ -17,7 +17,7 @@
         </div>
       </div>
 
-      <div class="hidden space-x-8 sm:flex sm:items-center sm:ms-auto">
+      <div class="hidden space-x-6 sm:flex sm:items-center sm:ms-auto">
 
         <a href="{{ route('welcome') }}"
           class="text-sm font-bold transition duration-150 ease-in-out {{ request()->routeIs('welcome') ? 'text-lime-400' : 'text-gray-300 hover:text-white' }}">
@@ -29,38 +29,30 @@
           Jelajahi Event
         </a>
 
-
-
         @auth
           <a href="{{ route('dashboard') }}"
             class="text-sm font-bold transition duration-150 ease-in-out {{ request()->routeIs('dashboard') || request()->routeIs('user.bookings.*') || request()->routeIs('organizer.dashboard') || request()->routeIs('admin.dashboard') ? 'text-lime-400' : 'text-gray-300 hover:text-white' }}">
             Dashboard
           </a>
 
+          @if (Auth::user()->role === 'admin')
+            <a href="{{ route('admin.users.index') }}" class="text-sm font-bold text-gray-300 hover:text-white">Manage
+              Users</a>
+            <a href="{{ route('admin.events.index') }}" class="text-sm font-bold text-gray-300 hover:text-white">Manage
+              Events</a>
+          @endif
+
+          @if (Auth::user()->role === 'organizer')
+            <a href="{{ route('organizer.events.index') }}" class="text-sm font-bold text-gray-300 hover:text-white">My
+              Events</a>
+          @endif
+
           @if (Auth::user()->role === 'user')
             <a href="{{ route('user.favorites.index') }}"
               class="text-sm font-bold text-gray-300 hover:text-white">Favorit</a>
           @endif
 
-          @if (Auth::user()->role === 'admin')
-            <a href="{{ route('admin.users.index') }}"
-              class="text-sm font-bold transition duration-150 ease-in-out {{ request()->routeIs('admin.users.*') ? 'text-lime-400' : 'text-gray-300 hover:text-white' }}">
-              Manage Users
-            </a>
-            <a href="{{ route('admin.events.index') }}"
-              class="text-sm font-bold transition duration-150 ease-in-out {{ request()->routeIs('admin.events.*') ? 'text-lime-400' : 'text-gray-300 hover:text-white' }}">
-              Manage Events
-            </a>
-          @endif
-
-          @if (Auth::user()->role === 'organizer')
-            <a href="{{ route('organizer.events.index') }}"
-              class="text-sm font-bold transition duration-150 ease-in-out {{ request()->routeIs('organizer.events.*') ? 'text-lime-400' : 'text-gray-300 hover:text-white' }}">
-              My Events
-            </a>
-          @endif
-
-          <div class="relative ms-4">
+          <div class="relative ms-2">
             <x-dropdown align="right" width="48">
               <x-slot name="trigger">
                 <button
@@ -75,16 +67,12 @@
                   </div>
                 </button>
               </x-slot>
-
               <x-slot name="content">
-                <x-dropdown-link :href="route('profile.edit')">
-                  {{ __('Profile') }}
-                </x-dropdown-link>
+                <x-dropdown-link :href="route('profile.edit')">{{ __('Profile') }}</x-dropdown-link>
                 <form method="POST" action="{{ route('logout') }}">
                   @csrf
-                  <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">
-                    {{ __('Log Out') }}
-                  </x-dropdown-link>
+                  <x-dropdown-link :href="route('logout')"
+                    onclick="event.preventDefault(); this.closest('form').submit();">{{ __('Log Out') }}</x-dropdown-link>
                 </form>
               </x-slot>
             </x-dropdown>
@@ -94,7 +82,7 @@
           @if (Route::has('register'))
             <a href="{{ route('register') }}"
               class="px-4 py-2 text-sm font-bold text-gray-900 transition rounded bg-lime-400 hover:bg-lime-300">
-              Premium Register
+              Register
             </a>
           @endif
         @endauth
@@ -117,60 +105,42 @@
   <div :class="{ 'block': open, 'hidden': !open }" class="hidden sm:hidden bg-[#18181b] border-t border-gray-800">
     <div class="pt-2 pb-3 space-y-1">
       <a href="{{ route('welcome') }}"
-        class="block w-full ps-3 pe-4 py-2 border-l-4 text-base font-medium transition duration-150 ease-in-out {{ request()->routeIs('welcome') ? 'border-lime-400 text-lime-400 bg-gray-800' : 'border-transparent text-gray-300 hover:text-white hover:bg-gray-800' }}">
-        Home
-      </a>
+        class="block w-full ps-3 pe-4 py-2 border-l-4 text-base font-medium transition duration-150 ease-in-out {{ request()->routeIs('welcome') ? 'border-lime-400 text-lime-400 bg-gray-800' : 'border-transparent text-gray-300 hover:text-white hover:bg-gray-800' }}">Home</a>
 
       <a href="{{ route('events.browse') }}"
-        class="block w-full ps-3 pe-4 py-2 border-l-4 text-base font-medium transition duration-150 ease-in-out {{ request()->routeIs('events.browse') ? 'border-lime-400 text-lime-400 bg-gray-800' : 'border-transparent text-gray-300 hover:text-white hover:bg-gray-800' }}">
-        Jelajahi Event
-      </a>
+        class="block w-full ps-3 pe-4 py-2 border-l-4 text-base font-medium transition duration-150 ease-in-out {{ request()->routeIs('events.browse') ? 'border-lime-400 text-lime-400 bg-gray-800' : 'border-transparent text-gray-300 hover:text-white hover:bg-gray-800' }}">Jelajahi
+        Event</a>
 
       @auth
         <a href="{{ route('dashboard') }}"
-          class="block w-full ps-3 pe-4 py-2 border-l-4 text-base font-medium transition duration-150 ease-in-out {{ request()->routeIs('dashboard') || request()->routeIs('user.bookings.*') || request()->routeIs('organizer.dashboard') ? 'border-lime-400 text-lime-400 bg-gray-800' : 'border-transparent text-gray-300 hover:text-white hover:bg-gray-800' }}">
-          Dashboard
-        </a>
+          class="block w-full py-2 text-gray-300 border-l-4 border-transparent ps-3 pe-4 hover:text-white hover:bg-gray-800">Dashboard</a>
 
         @if (Auth::user()->role === 'admin')
           <a href="{{ route('admin.users.index') }}"
-            class="block w-full ps-3 pe-4 py-2 border-l-4 border-transparent text-gray-300 hover:text-white hover:bg-gray-800 {{ request()->routeIs('admin.users.*') ? 'border-lime-400 text-lime-400' : '' }}">Manage
+            class="block w-full py-2 text-gray-300 border-l-4 border-transparent ps-3 pe-4 hover:text-white hover:bg-gray-800">Manage
             Users</a>
           <a href="{{ route('admin.events.index') }}"
-            class="block w-full ps-3 pe-4 py-2 border-l-4 border-transparent text-gray-300 hover:text-white hover:bg-gray-800 {{ request()->routeIs('admin.events.*') ? 'border-lime-400 text-lime-400' : '' }}">Manage
+            class="block w-full py-2 text-gray-300 border-l-4 border-transparent ps-3 pe-4 hover:text-white hover:bg-gray-800">Manage
             Events</a>
         @endif
 
         @if (Auth::user()->role === 'organizer')
           <a href="{{ route('organizer.events.index') }}"
-            class="block w-full ps-3 pe-4 py-2 border-l-4 border-transparent text-gray-300 hover:text-white hover:bg-gray-800 {{ request()->routeIs('organizer.events.*') ? 'border-lime-400 text-lime-400' : '' }}">My
+            class="block w-full py-2 text-gray-300 border-l-4 border-transparent ps-3 pe-4 hover:text-white hover:bg-gray-800">My
             Events</a>
+        @endif
+
+        @if (Auth::user()->role === 'user')
+          <a href="{{ route('user.favorites.index') }}"
+            class="block w-full py-2 text-gray-300 border-l-4 border-transparent ps-3 pe-4 hover:text-white hover:bg-gray-800">Favorit</a>
         @endif
       @else
         <a href="{{ route('login') }}"
           class="block w-full py-2 text-gray-300 border-l-4 border-transparent ps-3 pe-4 hover:text-white hover:bg-gray-800">Log
           in</a>
         <a href="{{ route('register') }}"
-          class="block w-full py-2 text-gray-300 border-l-4 border-transparent ps-3 pe-4 hover:text-white hover:bg-gray-800">Register</a>
+          class="block w-full py-2 bg-gray-800 border-l-4 ps-3 pe-4 border-lime-400 text-lime-400">Register</a>
       @endauth
     </div>
-
-    @auth
-      <div class="pt-4 pb-1 border-t border-gray-800">
-        <div class="px-4">
-          <div class="text-base font-medium text-white">{{ Auth::user()->name }}</div>
-          <div class="text-sm font-medium text-gray-400">{{ Auth::user()->email }}</div>
-        </div>
-        <div class="mt-3 space-y-1">
-          <x-responsive-nav-link :href="route('profile.edit')"
-            class="text-gray-300 hover:text-white hover:bg-gray-800">{{ __('Profile') }}</x-responsive-nav-link>
-          <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <x-responsive-nav-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();"
-              class="text-gray-300 hover:text-white hover:bg-gray-800">{{ __('Log Out') }}</x-responsive-nav-link>
-          </form>
-        </div>
-      </div>
-    @endauth
   </div>
 </nav>
