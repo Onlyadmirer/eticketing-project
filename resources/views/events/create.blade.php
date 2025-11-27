@@ -29,6 +29,19 @@
             </div>
 
             <div>
+              <label class="block mb-2 text-sm font-bold text-gray-300">Kategori Event</label>
+              <select name="category" required
+                class="w-full px-4 py-3 text-white transition border border-gray-700 rounded-lg bg-black/20 focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400">
+                <option value="" disabled selected>Pilih Kategori...</option>
+                <option value="Konser Musik">Konser Musik</option>
+                <option value="Seminar">Seminar / Workshop</option>
+                <option value="Olahraga">Olahraga</option>
+                <option value="Pameran">Pameran / Expo</option>
+                <option value="Teater">Teater / Seni</option>
+                <option value="Lainnya">Lainnya</option>
+              </select>
+            </div>
+            <div>
               <label class="block mb-2 text-sm font-bold text-gray-300">Deskripsi</label>
               <textarea name="description" rows="5" required
                 class="w-full px-4 py-3 text-white placeholder-gray-500 transition border border-gray-700 rounded-lg bg-black/20 focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400"

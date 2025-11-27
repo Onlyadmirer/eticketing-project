@@ -18,9 +18,12 @@ class BookingController extends Controller
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $ticket = Ticket::findOrFail($request->ticket_id);
+        $ticket = Ticket::with('event')->findOrFail($request->ticket_id);
 
-        // 1. Cek Kuota
+        if (now()->greaterThan(\Carbon\Carbon::parse($ticket->event->start_time))) {
+            return redirect()->back()->with('error', 'Maaf, event ini sudah selesai. Pembelian ditutup.');
+        }
+
         if ($ticket->quota < $request->quantity) {
             return redirect()->back()->with('error', 'Maaf, sisa kuota tidak cukup untuk jumlah yang Anda minta.');
         }
@@ -33,7 +36,7 @@ class BookingController extends Controller
             'booking_code' => 'TIX-' . strtoupper(Str::random(10)),
             'status' => 'approved',
             'quantity' => $request->quantity,
-            'total_price' => $totalPrice, 
+            'total_price' => $totalPrice,
         ]);
 
         $ticket->decrement('quota', $request->quantity);
@@ -50,5 +53,42 @@ class BookingController extends Controller
             ->get();
 
         return view('user.bookings', compact('bookings'));
+    }
+
+    // MEMBATALKAN PESANAN
+    public function cancel(Booking $booking)
+    {
+        if ($booking->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($booking->status === 'canceled') {
+            return redirect()->back()->with('error', 'Pesanan ini sudah dibatalkan sebelumnya.');
+        }
+
+        $eventTime = \Carbon\Carbon::parse($booking->ticket->event->start_time);
+        if (now()->greaterThanOrEqualTo($eventTime)) {
+            return redirect()->back()->with('error', 'Maaf, event sudah dimulai/selesai. Tidak bisa membatalkan tiket.');
+        }
+
+        $booking->update(['status' => 'canceled']);
+
+        $booking->ticket->increment('quota', $booking->quantity);
+
+        return redirect()->back()->with('success', 'Pesanan berhasil dibatalkan dan dana akan dikembalikan (Simulasi).');
+    }
+
+    // MENAMPILKAN E-TICKET (DIGITAL TICKET)
+    public function show(Booking $booking)
+    {
+        if ($booking->user_id !== Auth::id()) {
+            abort(403, 'Akses ditolak. Ini bukan tiket Anda.');
+        }
+
+        if ($booking->status !== 'approved') {
+            return redirect()->back()->with('error', 'Tiket belum disetujui atau dibatalkan.');
+        }
+
+        return view('user.ticket', compact('booking'));
     }
 }

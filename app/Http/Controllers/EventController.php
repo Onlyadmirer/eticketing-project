@@ -13,8 +13,6 @@ class EventController extends Controller
     public function index()
     {
         $user = Auth::user();
-
-        // Logika: Admin lihat semua, Organizer cuma lihat punya sendiri
         if ($user->role === 'admin') {
             $events = Event::latest()->get();
         } else {
@@ -33,30 +31,28 @@ class EventController extends Controller
     // MENYIMPAN DATA KE DATABASE
     public function store(Request $request)
     {
-        // 1. Validasi Input
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'start_time' => 'required|date',
             'location' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Max 2MB
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'category' => 'required|string',
         ]);
 
-        // 2. Handle Upload Gambar
         $imagePath = null;
         if ($request->hasFile('image')) {
-            // Simpan ke folder 'events' di dalam storage public
             $imagePath = $request->file('image')->store('events', 'public');
         }
 
-        // 3. Simpan ke Database
         Event::create([
-            'user_id' => Auth::id(), // Organizer yang sedang login
+            'user_id' => Auth::id(), 
             'title' => $request->title,
             'description' => $request->description,
             'start_time' => $request->start_time,
             'location' => $request->location,
             'image' => $imagePath,
+            'category' => $request->category,
         ]);
 
         $redirectRoute = Auth::user()->role === 'admin' ? 'admin.events.index' : 'organizer.events.index';
@@ -67,7 +63,6 @@ class EventController extends Controller
     // MENAMPILKAN FORM EDIT
     public function edit(Event $event)
     {
-        // Proteksi: Organizer A tidak boleh edit event Organizer B
         if (Auth::user()->role !== 'admin' && $event->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
@@ -78,7 +73,6 @@ class EventController extends Controller
     // UPDATE DATA DATABASE
     public function update(Request $request, Event $event)
     {
-        // Proteksi
         if (Auth::user()->role !== 'admin' && $event->user_id !== Auth::id()) {
             abort(403);
         }
@@ -89,11 +83,10 @@ class EventController extends Controller
             'start_time' => 'required|date',
             'location' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'category' => 'required|string',
         ]);
 
-        // Handle Update Gambar
         if ($request->hasFile('image')) {
-            // Hapus gambar lama jika ada
             if ($event->image) {
                 Storage::disk('public')->delete($event->image);
             }
@@ -105,7 +98,7 @@ class EventController extends Controller
             'description' => $request->description,
             'start_time' => $request->start_time,
             'location' => $request->location,
-            // Jika ada gambar baru, update. Jika tidak, pakai yang lama ($event->image sudah dihandle di atas)
+            'category' => $request->category,
         ]);
 
         $redirectRoute = Auth::user()->role === 'admin' ? 'admin.events.index' : 'organizer.events.index';
@@ -113,14 +106,12 @@ class EventController extends Controller
         return redirect()->route($redirectRoute)->with('success', 'Event berhasil diperbarui!');
     }
 
-    // MENGHAPUS EVENT
-    public function destroy(Event $event)
+public function destroy(Event $event)
     {
-        if (Auth::user()->role !== 'admin' && $event->user_id !== Auth::id()) {
-            abort(403);
+        if ($event->user_id !== Auth::id()) {
+            abort(403, 'Anda hanya dapat menghapus acara yang Anda buat sendiri.');
         }
 
-        // Hapus gambar dari storage
         if ($event->image) {
             Storage::disk('public')->delete($event->image);
         }
