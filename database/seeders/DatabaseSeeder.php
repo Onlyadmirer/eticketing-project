@@ -10,11 +10,17 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+
+        $this->call([
+            EventSeeder::class,
+            SecondOrganizerSeeder::class,
+        ]);
+
         // 1. Akun Admin
         User::create([
-            'name' => 'Akmal',
-            'email' => 'akmalrbc6@gmail.com',
-            'password' => Hash::make('adminPass'),
+            'name' => 'admin',
+            'email' => 'admin@admin.com',
+            'password' => Hash::make('password'),
             'role' => 'admin',
         ]);
 
@@ -27,7 +33,7 @@ class DatabaseSeeder extends Seeder
             'organizer_status' => 'approved',
         ]);
         
-        // 3. Akun Organizer (Pending/Belum disetujui - untuk tes fitur approve)
+        // 3. Akun Organizer 
         User::create([
             'name' => 'Event Organizer Baru',
             'email' => 'pending@organizer.com',
@@ -39,8 +45,8 @@ class DatabaseSeeder extends Seeder
         // 4. Akun User Biasa
         User::create([
             'name' => 'joni',
-            'email' => 'joni@yopmail.com',
-            'password' => Hash::make('joni123456'),
+            'email' => 'user@gmail.com',
+            'password' => Hash::make('password'),
             'role' => 'user',
         ]);
     }

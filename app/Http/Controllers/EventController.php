@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Http\Requests\StoreEventRequest;
+use App\Http\Requests\UpdateEventRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -29,16 +31,8 @@ class EventController extends Controller
     }
 
     // MENYIMPAN DATA KE DATABASE
-    public function store(Request $request)
+    public function store(StoreEventRequest $request)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'start_time' => 'required|date',
-            'location' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'category' => 'required|string',
-        ]);
 
         $imagePath = null;
         if ($request->hasFile('image')) {
@@ -71,20 +65,8 @@ class EventController extends Controller
     }
 
     // UPDATE DATA DATABASE
-    public function update(Request $request, Event $event)
+    public function update(UpdateEventRequest $request, Event $event)
     {
-        if (Auth::user()->role !== 'admin' && $event->user_id !== Auth::id()) {
-            abort(403);
-        }
-
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'start_time' => 'required|date',
-            'location' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'category' => 'required|string',
-        ]);
 
         if ($request->hasFile('image')) {
             if ($event->image) {
