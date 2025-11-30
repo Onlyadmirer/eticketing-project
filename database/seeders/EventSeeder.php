@@ -6,17 +6,22 @@ use Illuminate\Database\Seeder;
 use App\Models\Event;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
 
 class EventSeeder extends Seeder
 {
     public function run(): void
     {
-        $organizer = User::where('role', 'organizer')->first();
+        $organizer = User::firstOrCreate(
+            ['email' => 'organizer@example.com'],
+            [
+                'name' => 'Event Organizer 1',
+                'password' => Hash::make('password'),
+                'role' => 'organizer',
+                'organizer_status' => 'approved', 
+            ],
+        );
 
-        if (!$organizer) {
-            $this->command->info('Harap buat akun Organizer terlebih dahulu!');
-            return;
-        }
 
         $orgId = $organizer->id;
 
